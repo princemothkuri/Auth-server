@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 require("../db/conn");
 const User = require("../models/userSchema");
+const ContactUs = require("../models/contactSchema");
 const authenticate = require("../middleware/authenticate");
 const nodemailer = require("nodemailer");
 
@@ -447,6 +448,30 @@ router.get("/logout", (req, res) => {
   console.log("Logout Successful!");
   res.clearCookie("jwtoken", { path: "/" });
   return res.status(200).json({ message: "Logout Successful!" });
+});
+
+// --------contact us for non-users-------------
+router.post("/nucontact", async (req, res) => {
+  const { name, email, tel, message } = req.body;
+
+  // if (!name || !email || !phone || !message) {
+  //   return res.status(422).json({ error: "Enter all the fields!" });
+  // }
+
+  try {
+    const response = new ContactUs({
+      name,
+      email,
+      tel,
+      message,
+    });
+    await response.save();
+
+    return res.status(201).json({ message: "message sent!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(422).json({ error: "Server error!" });
+  }
 });
 
 // ------------Register page using promises method----------------------
